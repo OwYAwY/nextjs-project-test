@@ -19,7 +19,6 @@ const Header = () => {
         </a>
 
         <a
-          href="#contacts"
           className="text-[26px] text-center text-[#2f2d46]"
           style={{ fontFamily: "var(--font-victor-mono)" }}
         >
