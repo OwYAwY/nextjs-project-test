@@ -3,9 +3,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html {
+html,
+body {
   scroll-behavior: smooth;
+
+  margin: 0;
+  padding: 0;
 }
+/* В вашем CSS или в глобальных стилях */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 :root {
   --font-family: "Inter", sans-serif;
   --second-family: "Arial", sans-serif;

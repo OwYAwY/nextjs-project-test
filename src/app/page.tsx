@@ -1,11 +1,11 @@
 "use client";
 import WelcomeScreen from "./components/screens/welcomeScreen";
-// import TestScreen from "./components/screens/testScreen";
+import SecondScreen from "./components/screens/secondScreen";
 export default function Home() {
   return (
     <main>
       <WelcomeScreen />
-      <WelcomeScreen />
+      <SecondScreen />
       <WelcomeScreen />
     </main>
   );
