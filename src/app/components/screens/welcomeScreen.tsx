@@ -1,10 +1,6 @@
 "use client";
-import { useState } from "react";
-import { motion } from "framer-motion";
 
 export default function WelcomeScreen() {
-  const [isOn, setIsOn] = useState(false);
-
   return (
     <section className="w-full min-h-screen bg-[#1A1A29] flex flex-col justify-center items-center text-center px-4 relative overflow-visible">
       <div className="z-10">

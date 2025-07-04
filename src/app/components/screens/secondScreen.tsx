@@ -1,28 +1,9 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 
 export default function SecondScreen() {
-  const [isOn, setIsOn] = useState(false);
-
-  const variant = {
-    visible: { opacity: 1, y: "0px" },
-    hidden: { opacity: 0, y: "200px" },
-  };
-  const variant1 = {
-    visible: { opacity: 1, x: "0px" },
-    hidden: { opacity: 0, x: "200px" },
-  };
-
   return (
     <section className="w-full min-h-screen bg-[#1A1A29] px-4 relative overflow-visible">
-      <motion.div
-        transition={{ duration: 0.5 }}
-        variants={variant}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: "some" }}
-        className="absolute left-[250px] top-[153px] bottom-[115px]"
-      >
+      <motion.div className="absolute left-[250px] top-[110px] bottom-[115px]">
         <div className="flex flex-col items-center gap-5">
           <span className="text-white text-[83px] font-normal leading-none text-center mb-[20px]">
             МЫ НЕ
@@ -122,17 +103,12 @@ export default function SecondScreen() {
         </div>
       </motion.div>
       <motion.div
-        transition={{ duration: 0.5 }}
-        variants={variant1}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: "some" }}
         className="absolute flex flex-col items-center"
         style={{
           width: "720px",
           height: "664px",
-          left: "953px", // 250 + 603 + 100
-          top: "266px",
+          left: "953px",
+          top: "240px",
         }}
       >
         <span className="text-white text-[36px] font-bold font-inter leading-none text-center mb-[8px] ">
@@ -146,11 +122,13 @@ export default function SecondScreen() {
           className="mb-[20px]"
           alt="rightkvadrat"
         />
-        <img
-          src="./rightbutton.svg"
-          alt="rightbutton"
-          className="transition duration-200 cursor-pointer hover:scale-102"
-        />
+        <a href="#section3">
+          <img
+            src="./rightbutton.svg"
+            alt="rightbutton"
+            className="transition duration-200 cursor-pointer hover:scale-102"
+          />
+        </a>
       </motion.div>
     </section>
   );
