@@ -1,17 +1,48 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type ChatMessage = {
   id: number;
   text: string;
   fromUser: boolean;
   isReply?: boolean;
+  timestamp: number;
 };
 
 export default function ThirdScreen() {
   const [name, setName] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+
+  const lastReplyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/last-reply");
+        if (res.status === 200) {
+          const data = await res.json();
+          if (data.isReply && data.text && data.text !== lastReplyRef.current) {
+            lastReplyRef.current = data.text;
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Date.now(),
+                text: data.text,
+                fromUser: false,
+                isReply: true,
+                timestamp: Date.now(),
+              },
+            ]);
+          }
+        }
+      } catch (err) {
+        console.error("Ошибка получения ответа от бота:", err);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const sendMessage = async () => {
     if (!name.trim() || !input.trim()) {
@@ -23,6 +54,7 @@ export default function ThirdScreen() {
       id: Date.now(),
       text: input.trim(),
       fromUser: true,
+      timestamp: Date.now(),
     };
 
     setMessages((prev) => [...prev, newMessage]);
@@ -42,13 +74,15 @@ export default function ThirdScreen() {
         return;
       }
 
-      // Подождём 2 секунды и запросим ответ от бота
       setTimeout(async () => {
         try {
-          const replyRes = await fetch("/api/get-last-reply");
+          const replyRes = await fetch("/api/last-reply");
+          if (replyRes.status === 204) return;
+
           const replyData = await replyRes.json();
 
-          if (replyData?.text) {
+          if (replyData?.text && replyData.text !== lastReplyRef.current) {
+            lastReplyRef.current = replyData.text;
             setMessages((prev) => [
               ...prev,
               {
@@ -56,16 +90,22 @@ export default function ThirdScreen() {
                 text: replyData.text,
                 fromUser: false,
                 isReply: replyData.isReply,
+                timestamp: Date.now(), // время получения
               },
             ]);
           }
-        } catch (err) {
-          console.error("Ошибка получения ответа от бота:", err);
+        } catch (e) {
+          console.error("Ошибка получения ответа:", e);
         }
       }, 2000);
     } catch (error) {
       alert("Ошибка сети при отправке");
     }
+  };
+
+  const formatTime = (ms: number) => {
+    const date = new Date(ms);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   return (
@@ -89,19 +129,14 @@ export default function ThirdScreen() {
           />
 
           <div className="flex-1 mb-4 overflow-y-auto bg-[#2a2a40] rounded-lg p-4 text-white space-y-4 flex flex-col">
-            {messages.map(({ id, text, fromUser, isReply }) => (
+            {messages.map(({ id, text, fromUser, isReply, timestamp }) => (
               <div
                 key={id}
                 className={`px-4 py-3 rounded-lg max-w-[80%] break-words
-      ${fromUser ? "self-end text-black" : "self-start text-white"}
-      ${
-        fromUser
-          ? "bg-blue-500"
-          : isReply
-          ? "bg-green-500" // ответное сообщение бота
-          : "bg-gray-500" // обычное сообщение бота
-      }
-    `}
+                  ${fromUser ? "self-end text-black bg-blue-500" : ""}
+                  ${!fromUser && isReply ? "self-start bg-green-500" : ""}
+                  ${!fromUser && !isReply ? "self-start bg-gray-500" : ""}
+                `}
               >
                 {!fromUser && (
                   <p className="text-white font-semibold mb-1">Бот</p>
@@ -110,6 +145,9 @@ export default function ThirdScreen() {
                   <p className="text-black font-semibold mb-1">{name}</p>
                 )}
                 <p>{text}</p>
+                <p className="text-xs text-gray-300 mt-1 select-none">
+                  {formatTime(timestamp)}
+                </p>
               </div>
             ))}
           </div>
@@ -124,7 +162,7 @@ export default function ThirdScreen() {
             <input
               type="text"
               placeholder="Введите сообщение..."
-              className="flex-1 rounded-lg px-4 py-2 text-black"
+              className="flex-1 rounded-lg px-4 py-2 text-white"
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
@@ -138,7 +176,7 @@ export default function ThirdScreen() {
         </motion.div>
 
         <motion.div className="w-[720px] h-[733px] ml-[100px] mt-[13px]">
-          <img src="./bigform.svg" />
+          <img src="./bigform.svg" alt="Decorative" />
         </motion.div>
       </div>
     </section>

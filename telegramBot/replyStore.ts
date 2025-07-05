@@ -1,16 +1,15 @@
-type LastReply = {
-  text: string;
-  isReply: boolean;
-};
+// telegramBot/replyStore.ts
 
-let lastReply: LastReply | null = null;
+let lastReply: { text: string; isReply: boolean } | null = null;
 
 export const setLastReplyText = (text: string, isReply = false) => {
   lastReply = { text, isReply };
 };
 
-export const getLastReplyText = () => lastReply;
+export const getLastReplyText = () => {
+  return lastReply;
+};
 
-export const clearLastReplyText = () => {
+export const clearLastReply = () => {
   lastReply = null;
 };
