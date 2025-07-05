@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "all": "concurrently \"next dev\" \"cross-env NODE_ENV=development npx tsx watch telegramBot/index.ts\"",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "start:bot": "cross-env NODE_ENV=development npx tsx watch telegramBot/index.ts"
   },
   "dependencies": {
     "@puregram/scenes": "^2.0.1",
     "@puregram/session": "^3.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.0.1",
+    "env-var": "^7.5.0",
     "framer-motion": "^12.20.5",
     "lucide-react": "^0.525.0",
     "motion": "^12.22.0",
@@ -28,6 +32,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "tailwindcss": "^4",

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-
+import { TG_TOKEN, CHAT_ID } from "../../envs";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -14,10 +14,7 @@ export default async function handler(
     return res.status(400).json({ error: "Имя и сообщение обязательны" });
   }
 
-  const BOT_TOKEN = process.env.BOT_TOKEN;
-  const CHAT_ID = process.env.CHAT_ID;
-
-  if (!BOT_TOKEN || !CHAT_ID) {
+  if (!TG_TOKEN || !CHAT_ID) {
     return res
       .status(500)
       .json({ error: "BOT_TOKEN или CHAT_ID не установлены в .env.local" });
@@ -28,7 +25,7 @@ export default async function handler(
 
   try {
     const response = await fetch(
-      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+      `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,
       {
         method: "POST",
         headers: {

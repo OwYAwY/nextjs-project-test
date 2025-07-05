@@ -1,5 +1,6 @@
 import { ParseMode, Telegram } from "puregram";
-import { TG_TOKEN } from "./envs.js";
+import { TG_TOKEN } from "../envs.js";
+import { print } from "../helpers/print.js";
 import { SceneManager } from "@puregram/scenes";
 import { session } from "@puregram/session";
 
@@ -25,7 +26,7 @@ tg.updates.use(async (ctx, next) => {
   const start = Date.now();
   await next();
   const end = Date.now();
-  console.log(
+  print(
     "Debug",
     `Event ${ctx.updateId ?? "unknown"} processed in ${end - start}ms`
   );

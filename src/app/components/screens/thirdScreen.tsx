@@ -1,9 +1,16 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 
+type ChatMessage = {
+  id: number;
+  text: string;
+  fromUser: boolean;
+  isReply?: boolean;
+};
+
 export default function ThirdScreen() {
   const [name, setName] = useState("");
-  const [messages, setMessages] = useState<{ id: number; text: string }[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
 
   const sendMessage = async () => {
@@ -12,9 +19,10 @@ export default function ThirdScreen() {
       return;
     }
 
-    const newMessage = {
+    const newMessage: ChatMessage = {
       id: Date.now(),
       text: input.trim(),
+      fromUser: true,
     };
 
     setMessages((prev) => [...prev, newMessage]);
@@ -31,7 +39,30 @@ export default function ThirdScreen() {
 
       if (!res.ok) {
         alert("Ошибка: " + (data.error || "Неизвестная"));
+        return;
       }
+
+      // Подождём 2 секунды и запросим ответ от бота
+      setTimeout(async () => {
+        try {
+          const replyRes = await fetch("/api/get-last-reply");
+          const replyData = await replyRes.json();
+
+          if (replyData?.text) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Date.now() + 1,
+                text: replyData.text,
+                fromUser: false,
+                isReply: replyData.isReply,
+              },
+            ]);
+          }
+        } catch (err) {
+          console.error("Ошибка получения ответа от бота:", err);
+        }
+      }, 2000);
     } catch (error) {
       alert("Ошибка сети при отправке");
     }
@@ -58,12 +89,26 @@ export default function ThirdScreen() {
           />
 
           <div className="flex-1 mb-4 overflow-y-auto bg-[#2a2a40] rounded-lg p-4 text-white space-y-4 flex flex-col">
-            {messages.map(({ id, text }) => (
+            {messages.map(({ id, text, fromUser, isReply }) => (
               <div
                 key={id}
-                className="bg-blue-500 px-4 py-3 rounded-lg max-w-[80%] break-words self-end"
+                className={`px-4 py-3 rounded-lg max-w-[80%] break-words
+      ${fromUser ? "self-end text-black" : "self-start text-white"}
+      ${
+        fromUser
+          ? "bg-blue-500"
+          : isReply
+          ? "bg-green-500" // ответное сообщение бота
+          : "bg-gray-500" // обычное сообщение бота
+      }
+    `}
               >
-                <p className="text-black font-semibold mb-1">{name}</p>
+                {!fromUser && (
+                  <p className="text-white font-semibold mb-1">Бот</p>
+                )}
+                {fromUser && (
+                  <p className="text-black font-semibold mb-1">{name}</p>
+                )}
                 <p>{text}</p>
               </div>
             ))}
