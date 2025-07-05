@@ -2,45 +2,38 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 
 export default function ThirdScreen() {
-  const BOT_TOKEN = process.env.NEXT_PUBLIC_BOT_TOKEN!;
-  const CHAT_ID = process.env.NEXT_PUBLIC_CHAT_ID!;
-
-  const [message, setMessage] = useState("");
+  const [name, setName] = useState("");
+  const [messages, setMessages] = useState<{ id: number; text: string }[]>([]);
+  const [input, setInput] = useState("");
 
   const sendMessage = async () => {
-    if (!message.trim()) {
-      alert("Введите сообщение");
+    if (!name.trim() || !input.trim()) {
+      alert("Пожалуйста, заполните имя и сообщение");
       return;
     }
 
-    const now = new Date();
-    const timeString = now.toLocaleString();
+    const newMessage = {
+      id: Date.now(),
+      text: input.trim(),
+    };
 
-    const fullMessage = `Сообщение из формы: ${message}\n\nОтправлено: ${timeString}`;
+    setMessages((prev) => [...prev, newMessage]);
+    setInput("");
 
     try {
-      const res = await fetch(
-        `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: fullMessage,
-          }),
-        }
-      );
+      const res = await fetch("/api/send-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, message: newMessage.text }),
+      });
 
       const data = await res.json();
 
-      if (data.ok) {
-        alert("Сообщение отправлено!");
-        setMessage("");
-      } else {
-        alert("Ошибка Telegram: " + data.description);
+      if (!res.ok) {
+        alert("Ошибка: " + (data.error || "Неизвестная"));
       }
     } catch (error) {
-      alert("Ошибка сети при отправке сообщения");
+      alert("Ошибка сети при отправке");
     }
   };
 
@@ -50,24 +43,53 @@ export default function ThirdScreen() {
       className="w-full min-h-screen bg-[#1A1A29] px-4 relative overflow-visible"
     >
       <div className="absolute left-[250px] top-[157px] w-[1420px] h-[733px] flex">
-        <motion.div className="w-[600px] h-[712px] mt-[21px] flex flex-col">
-          <span className="text-white text-[60px] font-normal leading-none text-center block">
+        <motion.div className="w-[600px] h-[712px] mt-[21px] bg-[#232336] rounded-2xl p-6 shadow-lg flex flex-col">
+          <span className="text-white text-[48px] font-semibold leading-tight text-left mb-6">
             Не тупи, закажи сайт
           </span>
 
-          <textarea
-            className="mt-[25px] w-[600px] h-[470px] bg-transparent text-white resize-none p-4 text-base leading-normal outline-none"
-            placeholder="Введите сообщение..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+          <input
+            type="text"
+            placeholder="Как к вам обращаться?"
+            className="w-full h-[50px] bg-[#2a2a40] text-white placeholder-gray-400 rounded-lg px-4 mb-4 outline-none focus:ring-2 focus:ring-[#5c5cff] transition"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
           />
 
-          <img
-            src="./lookatus.svg"
-            alt="Send message"
-            className="mt-[20px] cursor-pointer transition duration-200 hover:scale-105 self-start"
-            onClick={sendMessage}
-          />
+          <div className="flex-1 mb-4 overflow-y-auto bg-[#2a2a40] rounded-lg p-4 text-white space-y-4 flex flex-col">
+            {messages.map(({ id, text }) => (
+              <div
+                key={id}
+                className="bg-blue-500 px-4 py-3 rounded-lg max-w-[80%] break-words self-end"
+              >
+                <p className="text-black font-semibold mb-1">{name}</p>
+                <p>{text}</p>
+              </div>
+            ))}
+          </div>
+
+          <form
+            className="flex space-x-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessage();
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Введите сообщение..."
+              className="flex-1 rounded-lg px-4 py-2 text-black"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 text-white rounded-lg px-6 py-2 hover:bg-blue-700 transition"
+            >
+              Отправить
+            </button>
+          </form>
         </motion.div>
 
         <motion.div className="w-[720px] h-[733px] ml-[100px] mt-[13px]">
