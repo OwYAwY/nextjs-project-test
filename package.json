@@ -11,6 +11,7 @@
     "start:bot": "cross-env NODE_ENV=development npx tsx watch telegramBot/index.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.11.1",
     "@puregram/scenes": "^2.0.1",
     "@puregram/session": "^3.2.4",
     "class-variance-authority": "^0.7.1",
@@ -32,6 +33,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.0",
     "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
