@@ -9,14 +9,11 @@ let lastReply = {
 export default function handler(req: any, res: any) {
   if (req.method === "GET") {
     if (!lastReply.text) {
-      // Нет нового ответа — возвращаем 204 No Content
       return res.status(204).end();
     }
 
-    // Отдаём последний reply
     const replyToSend = { ...lastReply };
 
-    // Сбрасываем lastReply после отдачи
     lastReply = {
       text: "",
       isReply: false,

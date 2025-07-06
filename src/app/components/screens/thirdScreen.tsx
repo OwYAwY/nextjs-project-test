@@ -74,6 +74,7 @@ export default function ThirdScreen() {
         return;
       }
 
+      // Ждем и получаем ответ бота
       setTimeout(async () => {
         try {
           const replyRes = await fetch("/api/last-reply");
@@ -90,7 +91,7 @@ export default function ThirdScreen() {
                 text: replyData.text,
                 fromUser: false,
                 isReply: replyData.isReply,
-                timestamp: Date.now(), // время получения
+                timestamp: Date.now(),
               },
             ]);
           }
@@ -102,6 +103,41 @@ export default function ThirdScreen() {
       alert("Ошибка сети при отправке");
     }
   };
+
+  async function addUser() {
+    if (!name.trim()) {
+      alert("Введите имя перед добавлением пользователя");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/add-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tgId: Date.now().toString(), // генерация уникального tgId на клиенте (для теста)
+          tgNick: "",
+          name,
+          isAdmin: false,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        alert("Ошибка: " + errData.error);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Пользователь добавлен:", data);
+      alert("Пользователь добавлен: " + data.name);
+    } catch (error) {
+      alert("Ошибка сети при добавлении пользователя");
+      console.error(error);
+    }
+  }
 
   const formatTime = (ms: number) => {
     const date = new Date(ms);
@@ -171,6 +207,13 @@ export default function ThirdScreen() {
               className="bg-blue-600 text-white rounded-lg px-6 py-2 hover:bg-blue-700 transition"
             >
               Отправить
+            </button>
+            <button
+              type="button"
+              onClick={addUser}
+              className="bg-blue-600 text-white rounded-lg px-6 py-2 hover:bg-blue-700 transition"
+            >
+              Добавить пользователя
             </button>
           </form>
         </motion.div>
